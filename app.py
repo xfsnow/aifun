@@ -51,10 +51,11 @@ def index():
 #             }
 # """
 #         data= eval(strContent)
-#         receipt = Receipt()
-#         res = receipt.save(data)
-#         print(res)
-        return render_template('upload.html')
+        receipt = Receipt()
+        res = receipt.listReceipts(10)
+        data = {'records': res}
+        print(res)
+        return render_template('upload.html', data=data)
 
 
 @app.route('/save', methods=['POST'])

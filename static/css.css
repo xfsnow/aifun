@@ -25,6 +25,11 @@
         padding: 20px;
     }
 }
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
 /* 上传页 end */
 
 /* 信息确认页 begin */

@@ -22,9 +22,16 @@ openai.api_version = os.getenv("AZURE_API_VERSION", "2024-08-01-preview")
 openai.model = os.getenv("AZURE_MODEL_NAME", "gpt-4o")
 
 class Receipt:
-
-    # def __init__(self, model=None):
-    #     self.model = model or MODEL_NAME
+    def listReceipts(self, limit: int = 10) -> list:
+        engine = SqlHelper.createDbEngine()
+        conn = engine.connect()
+        mysqlTable = 'accounting'
+        # 查询数据库，选择时间最近的10条记录
+        sql = f"SELECT * FROM {mysqlTable} ORDER BY transaction_time DESC LIMIT {limit}"
+        df = pd.read_sql(sql, conn)
+        conn.close()
+        res = df.to_dict(orient='records')
+        return res
 
     # 重置图片大小
     # 手机截图尺寸比较大，缩小成宽最大600像素

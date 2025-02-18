@@ -283,5 +283,6 @@ az webapp deploy -g <your-region> -n <your-app-name> --src-path deploy.zip --typ
 
 
 TODO
+- [X] 列表展示已保存的收支记录。
 - [ ] 样式调整成适配手机端的灵活样式，现在手机打开字体太小。
 - [ ] 改进前端交互成为 SPA，主要是更友好的等待和进度显示。
