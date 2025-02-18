@@ -277,3 +277,5 @@ az webapp deploy -g <your-region> -n <your-app-name> --src-path deploy.zip --typ
 
 环境变量和Python依赖库的问题都解决了，但是保存数据库时还是报 500 错，并且在日志中又不显示错误信息。
 目前是创建一个Ubuntu的虚拟机，然后在虚拟机上部署Flask应用，这样就可以更好的控制环境和调试问题。
+推测是 Python 连接 Azure Database for MySQL 的奇怪问题。
+实测确实是 Azure Database for MySQL 的问题，require_secure_transport 选项导致的。Python 连接数据库时加上 Azure 给的证书即可。注意官方文档建议的 2 个证书，目前只有 [DigiCertGlobalRootCA.crt.pem](https://learn.microsoft.com/en-us/azure/mysql/flexible-server/how-to-connect-tls-ssl#download-the-public-ssl-certificate) 可以正常用于 Azure 北3区的 MySQL 服务。

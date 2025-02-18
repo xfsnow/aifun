@@ -2,7 +2,7 @@ from datetime import datetime
 from models.Receipt import Receipt
 import os
 
-from flask import (Flask, render_template, request,send_from_directory)
+from flask import (Flask, render_template, request, send_from_directory)
 
 app = Flask(__name__)
 
@@ -38,22 +38,22 @@ def index():
         #     with open('static/uploads/resized.jpg', 'wb') as f:
         #         f.write(img)
         #     parsed_data = receipt.recognize(img)
-        strContent = """
-{
-                "transaction_time": "2025-02-14 09:17:58",
-                "income_amount": None,
-                "expense_amount": 10.28,
-                "transaction_app": "美团App",
-                "payment_platform": "",
-                "financial_terminal": "浦发银行信用卡 (0673)",
-                "memo": "骑行套餐",
-                "category": "交通"
-            }
-"""
-        data= eval(strContent)
-        receipt = Receipt()
-        res = receipt.save(data)
-        print(res)
+#         strContent = """
+# {
+#                 "transaction_time": "2025-02-14 09:17:58",
+#                 "income_amount": None,
+#                 "expense_amount": 10.28,
+#                 "transaction_app": "美团App",
+#                 "payment_platform": "",
+#                 "financial_terminal": "浦发银行信用卡 (0673)",
+#                 "memo": "骑行套餐",
+#                 "category": "交通"
+#             }
+# """
+#         data= eval(strContent)
+#         receipt = Receipt()
+#         res = receipt.save(data)
+#         print(res)
         return render_template('upload.html')
 
 
