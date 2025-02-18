@@ -1,0 +1,53 @@
+/* 上传页 begin */
+.container {
+    margin: 0 auto;
+    max-width: 600px;
+    padding: 20px;
+}
+.upload-box {
+    border: 2px dashed #ccc;
+    padding: 30px;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+#preview {
+    display: none; /* 先隐藏 */
+    max-width: 100%;
+    margin-top: 20px;
+}
+@media (max-width: 600px) {
+    .container {
+        margin: 0;
+        padding: 10px;
+    }
+    .upload-box {
+        padding: 20px;
+    }
+}
+/* 上传页 end */
+
+/* 信息确认页 begin */
+/* 整页字体，尤其是表单格里的字体 arial, sans serif */
+ body, input, textarea { font-family: Arial, sans-serif; }
+ .edit-form { max-width: 400px; margin: 10px auto; }
+ .form-group { margin-bottom: 10px; }
+ label { display: block; margin-bottom: 5px; }
+ input, textarea { width: 100%; padding: 8px; }
+ .preview-img {
+     max-width: 400px;
+     display: block;    /* 使图片作为块级元素 */
+     margin: 5px auto; /* 上下20、左右自动，即水平居中 */
+ }
+ button {
+     margin-top: 10px;
+     padding: 10px;
+     background-color: #4CAF50;
+     color: white;
+     border: none;
+     cursor: pointer;
+ }
+ button:hover {
+     background-color: #45a049;
+ }
+/* 信息确认页 end */

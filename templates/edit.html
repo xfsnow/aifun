@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>确认交易信息</title>
+    <link rel="stylesheet" href="/static/css.css">
+</head>
+<body>
+    <div class="edit-form">
+        {{ message }}
+        <h2>检查交易信息</h2>
+        <img class="preview-img" src="{{ data.preview_image }}" alt="截图预览">
+
+        <form action="/save" method="post">
+            <div class="form-group">
+                <label>交易时间:</label>
+                <input type="datetime-local" name="transaction_time" value="{{ data.transaction_time }}">
+            </div>
+
+            <div class="form-group">
+                <label>收入金额 (¥):</label>
+                <input type="number" step="0.01" name="income_amount" value="{{ data.income_amount }}">
+            </div>
+
+            <div class="form-group">
+                <label>支出金额 (¥):</label>
+                <input type="number" step="0.01" name="expense_amount" value="{{ data.expense_amount }}">
+            </div>
+
+            <div class="form-group">
+                <label>消费应用:</label>
+                <input type="text" name="transaction_app" value="{{ data.transaction_app }}">
+            </div>
+
+            <div class="form-group">
+                <label>支付平台:</label>
+                <input type="text" name="payment_platform" value="{{ data.payment_platform }}">
+            </div>
+
+            <div class="form-group">
+                <label>金融终端:</label>
+                <input type="text" name="financial_terminal" value="{{ data.financial_terminal }}">
+            </div>
+
+            <div class="form-group">
+                <label>备注:</label>
+                <textarea name="memo" rows="3">{{ data.memo }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>类别:</label>
+                <input type="text" name="category" value="{{ data.category }}">
+            </div>
+
+            <button type="submit">保存交易</button>
+        </form>
+    </div>
+</body>
+</html>

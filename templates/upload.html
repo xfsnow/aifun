@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>收支记录</title>
+    <link rel="stylesheet" href="/static/css.css">
+</head>
+<body>
+    <div class="container">
+        <h1>上传截图</h1>
+        <form method="post" enctype="multipart/form-data">
+            <div class="upload-box">
+                <input type="file" name="receipt" accept="image/*" onchange="previewImage(this)">
+                <img id="preview" src="#" alt="图片预览">
+            </div>
+            <button type="submit">开始识别</button>
+        </form>
+    </div>
+    <script>
+        function previewImage(input) {
+            const preview = document.getElementById('preview');
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = "block";
+            };
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</body>
+</html>

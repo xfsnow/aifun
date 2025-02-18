@@ -1,2 +1,7 @@
-Flask==3.0.0
+Flask
 gunicorn
+openai
+pandas
+pillow
+pymysql
+sqlalchemy
