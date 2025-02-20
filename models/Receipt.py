@@ -31,6 +31,11 @@ class Receipt:
         df = pd.read_sql(sql, conn)
         conn.close()
         res = df.to_dict(orient='records')
+        # 数据库表中某字段值为空时，to_dict()会将其转换为None，把它改成空字符串
+        for record in res:
+            for key, value in record.items():
+                if pd.isna(value):
+                    record[key] = ''
         return res
 
     # 重置图片大小
