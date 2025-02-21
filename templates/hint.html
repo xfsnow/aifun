@@ -2,12 +2,14 @@
 <html>
 <head>
     <title>提示信息</title>
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css">
     <link rel="stylesheet" href="/static/css.css">
 </head>
 <body>
-    <div class="edit-form">
-        {{ hint.message }}
-        <a href="{{ hint.url }}">{{ hint.link }}</a>
+    <div class="hint-box">
+        <i class="iconfont icon-success"></i>
+        <h1>{{ hint.message }}</h1>
+        <h1><a href="{{ hint.url }}">{{ hint.link }}</a></h1>
 
     </div>
 </body>

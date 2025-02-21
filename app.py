@@ -54,7 +54,7 @@ def index():
         receipt = Receipt()
         res = receipt.listReceipts(10)
         data = {'records': res}
-        print(res)
+        # print(res)
         return render_template('upload.html', data=data)
 
 

@@ -2,17 +2,20 @@
 <html>
 <head>
     <title>收支记录</title>
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css">
     <link rel="stylesheet" href="/static/css.css">
 </head>
 <body>
     <div class="container">
         <h1>上传截图</h1>
-        <form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data" id="uploadForm">
             <div class="upload-box">
-                <input type="file" name="receipt" accept="image/*" onchange="previewImage(this)">
+                <input hidden="hidden" type="file" name="receipt" accept="image/*" id="fileInput" onchange="previewImage(this)">
+                <button type="button" class="file-upload-button" onclick="document.getElementById('fileInput').click()"><i class="iconfont icon-upload"></i>上传文件</button>
+
                 <img id="preview" src="#" alt="图片预览">
             </div>
-            <button type="submit">开始识别</button>
+            <button hidden="hidden" type="submit" id="submitButton">开始识别</button>
         </form>
     </div>
 
@@ -52,11 +55,16 @@
             reader.onload = function(e) {
                 preview.src = e.target.result;
                 preview.style.display = "block";
+                document.getElementById('submitButton').style.display = "block";
             };
             if (file) {
                 reader.readAsDataURL(file);
             }
         }
+
+        document.getElementById('submitButton').addEventListener('click', function() {
+            document.getElementById('uploadForm').submit();
+        });
     </script>
 </body>
 </html>

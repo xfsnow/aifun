@@ -10,6 +10,7 @@ class SqlHelper:
     @staticmethod
     def createDbEngine(autocommit=False,debug=False) -> create_engine:
         mysqlHost = os.environ.get("MYSQL_HOST")
+        print(mysqlHost)
         mysqlUser = os.environ.get("MYSQL_USER")
         mysqlPassword = os.environ.get("MYSQL_PASSWORD")
         mysqlDatabase = os.environ.get("MYSQL_DATABASE")
