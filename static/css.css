@@ -6,46 +6,37 @@ body {
     box-sizing: border-box;
 }
 
-.container {
-    width: 100%;
-    padding: 20px;
-    box-sizing: border-box;
-}
 
 h1, h3 {
     text-align: center;
 }
 
-.upload-box {
+.button-container {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-top: 20px;
 }
 
-.upload-box input[type="file"] {
-    margin-bottom: 10px;
+.file-upload-button, #submitButton {
+    height: 50px;
+    padding: 0 20px;
+    font-size: 16px;
+    cursor: pointer;
 }
 
-.upload-box img {
-    max-width: 100%;
-    height: auto;
-    display: none;
-}
-
-button {
-    display: block;
-    width: 100%;
-    padding: 10px;
+.file-upload-button {
     background-color: #007bff;
     color: white;
     border: none;
     border-radius: 5px;
-    cursor: pointer;
 }
 
-button:hover {
-    background-color: #0056b3;
+#submitButton {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
 }
 
 .data-table {
@@ -88,15 +79,5 @@ button:hover {
      display: block;    /* 使图片作为块级元素 */
      margin: 5px auto; /* 上下20、左右自动，即水平居中 */
  }
- button {
-     margin-top: 10px;
-     padding: 10px;
-     background-color: #4CAF50;
-     color: white;
-     border: none;
-     cursor: pointer;
- }
- button:hover {
-     background-color: #45a049;
- }
+
 /* 信息确认页 end */

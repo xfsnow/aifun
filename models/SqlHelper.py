@@ -8,21 +8,20 @@ class SqlHelper:
     # debug: 是否打印调试信息
     # 返回值：create_engine
     @staticmethod
-    def createDbEngine(autocommit=False,debug=False) -> create_engine:
+    def createDbEngine(autocommit=False, debug=False) -> create_engine:
         mysqlHost = os.environ.get("MYSQL_HOST")
-        print(mysqlHost)
         mysqlUser = os.environ.get("MYSQL_USER")
         mysqlPassword = os.environ.get("MYSQL_PASSWORD")
         mysqlDatabase = os.environ.get("MYSQL_DATABASE")
+        env = os.environ.get("FLASK_ENV")
         strMysqlConn = 'mysql+pymysql://'+mysqlUser+':'+mysqlPassword+'@'+mysqlHost+'/'+mysqlDatabase
         # 证书文件下载自 https://learn.microsoft.com/en-us/azure/mysql/flexible-server/how-to-connect-tls-ssl#download-the-public-ssl-certificate 保存在/models/目录下
-        jsonConnectArgs = {
-            "ssl": {
-                "ca": "models/DigiCertGlobalRootCA.crt.pem"
-            }
-        }
-        engine = create_engine(strMysqlConn, echo=debug, connect_args=jsonConnectArgs)
-        # engine = create_engine(strMysqlConn, echo=debug)
+        if env == 'development':
+            engine = create_engine(strMysqlConn, echo=debug)
+        else:
+            jsonConnectArgs = {"ssl": {"ca": "models/DigiCertGlobalRootCA.crt.pem"}}
+            engine = create_engine(strMysqlConn, echo=debug, connect_args=jsonConnectArgs)
+
         if autocommit:
             # Session 级别的 autocommit 已经没有了，现在需要在 create_engine 时指定 isolation_level 来实现
             engine = engine.execution_options(isolation_level="AUTOCOMMIT")
