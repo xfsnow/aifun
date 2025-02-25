@@ -5,9 +5,8 @@ import base64
 import json
 import openai
 import os
-import pandas as pd
 
-from models.SqlHelper import SqlHelper
+from models.Table import Table
 
 # 在环境变量或配置中设置以下参数：
 #   AZURE_API_KEY        Azure OpenAI 的API密钥
@@ -22,20 +21,23 @@ openai.api_version = os.getenv("AZURE_API_VERSION", "2024-08-01-preview")
 openai.model = os.getenv("AZURE_MODEL_NAME", "gpt-4o")
 
 class Receipt:
+    # 按ID编辑1条记录
+    def editReceipt(self, id: int, receipt: dict) -> bool:
+        # 更新数据表
+        tableAccount = Table('accounting')
+        res = tableAccount.where('id', '=', id).update(receipt)
+        return res
+
+    # 按记录ID读取1条记录
+    def getReceipt(self, id) -> dict:
+        tableAccount = Table('accounting')
+        res = tableAccount.select('*').where('id', '=', id).get()
+        return res[0]
+
+    # 按时间倒序读取多条记录
     def listReceipts(self, limit: int = 10) -> list:
-        engine = SqlHelper.createDbEngine()
-        conn = engine.connect()
-        mysqlTable = 'accounting'
-        # 查询数据库，选择时间最近的10条记录
-        sql = f"SELECT * FROM {mysqlTable} ORDER BY transaction_time DESC LIMIT {limit}"
-        df = pd.read_sql(sql, conn)
-        conn.close()
-        res = df.to_dict(orient='records')
-        # 数据库表中某字段值为空时，to_dict()会将其转换为None，把它改成空字符串
-        for record in res:
-            for key, value in record.items():
-                if pd.isna(value):
-                    record[key] = ''
+        tableAccount = Table('accounting')
+        res = tableAccount.select('*').order_by('id', 'DESC').limit(limit).get()
         return res
 
     # 重置图片大小
@@ -124,18 +126,6 @@ class Receipt:
     # 保存识别结果
     def save(self, receipt: dict) -> bool:
         # 保存到数据库
-        engine = SqlHelper.createDbEngine()
-        conn = engine.connect()
-        mysqlTable = 'accounting'
-        try:
-            df = pd.DataFrame([receipt])
-            # 如果记录存在则跳过
-            df.to_sql(mysqlTable, conn, if_exists='append', index=False)
-            res = True
-        except Exception as e:
-            print(e)
-            res = False
-        finally:
-            conn.close()
-
+        tableAccount = Table('accounting')
+        res = tableAccount.add(receipt)
         return res

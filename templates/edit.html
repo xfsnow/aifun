@@ -6,11 +6,14 @@
 </head>
 <body>
     <div class="edit-form">
-        {{ message }}
-        <h2>检查交易信息</h2>
+        <h2>编辑交易信息</h2>
+        {% if data.preview_image %}
         <img class="preview-img" src="{{ data.preview_image }}" alt="截图预览">
-
         <form action="/save" method="post">
+        {% else %}
+        <form action="/edit" method="post">
+        <input type="hidden" name="id" value="{{ data.id }}">
+        {% endif %}
             <div class="form-group">
                 <label>交易时间:</label>
                 <input type="datetime-local" name="transaction_time" value="{{ data.transaction_time }}">

@@ -7,5 +7,30 @@
 <body>
     <h1>{{ data.title }}</h1>
     <p>Hello, {{ data.name }}!</p>
+
+    <table class="data-table" border="1">
+        <tr>
+            <th>时间</th>
+            <th>收入</th>
+            <th>支出</th>
+            <th>交易应用</th>
+            <th>支付平台</th>
+            <th>金融终端</th>
+            <th>备注</th>
+            <th>分类</th>
+        </tr>
+        {% for record in data.records %}
+        <tr>
+            <td><a href="/edit?id={{ record.id }}">{{ record.transaction_time }}</a></td>
+            <td>{{ record.income_amount }}</td>
+            <td>{{ record.expense_amount }}</td>
+            <td>{{ record.transaction_app }}</td>
+            <td>{{ record.payment_platform }}</td>
+            <td>{{ record.financial_terminal }}</td>
+            <td>{{ record.memo }}</td>
+            <td>{{ record.category }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>

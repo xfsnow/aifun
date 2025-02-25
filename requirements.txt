@@ -4,4 +4,3 @@ openai
 pandas
 pillow
 pymysql
-sqlalchemy

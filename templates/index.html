@@ -30,7 +30,7 @@
         </tr>
         {% for record in data.records %}
         <tr>
-            <td>{{ record.transaction_time }}</td>
+            <td><a href="/edit?id={{ record.id }}">{{ record.transaction_time }}</a></td>
             <td>{{ record.income_amount }}</td>
             <td>{{ record.expense_amount }}</td>
             <td>{{ record.transaction_app }}</td>
