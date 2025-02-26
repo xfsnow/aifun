@@ -1,6 +1,6 @@
+cryptography
 Flask
 gunicorn
 openai
-pandas
 pillow
 pymysql
