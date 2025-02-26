@@ -30,19 +30,15 @@ class Table:
         mysqlDatabase = os.environ.get("MYSQL_DATABASE")
         env = os.environ.get("FLASK_ENV")
 
-        key = f"{mysqlHost}_{mysqlUser}_{mysqlDatabase}"
-        if not hasattr(Table, 'connection'):
-            Table.connection = {}
-        if key not in Table.connection:
-            Table.connection[key] = pymysql.connect(
+        jsonSsl = {'ca': 'models/DigiCertGlobalRootCA.crt.pem'} if env != 'development' else None
+        connection = pymysql.connect(
                 host=mysqlHost,
                 user=mysqlUser,
                 password=mysqlPassword,
                 database=mysqlDatabase,
                 autocommit=True,
-                ssl={'ca': 'models/DigiCertGlobalRootCA.crt.pem'} if env != 'development' else None
+                ssl=jsonSsl
             )
-        connection = Table.connection[key]
         self.cursor = connection.cursor()
         self.m_errorstr = ""
 
@@ -117,7 +113,15 @@ class Table:
         self.m_sql = sql
         self.clear_error()
         print(sql)
-        self.cursor.execute(sql)
+        try:
+            self.cursor.execute(sql)
+        except pymysql.err.InterfaceError as e:
+            print(f"SQL execution error: {e}")
+        except pymysql.err.ProgrammingError as e:
+            print(f"SQL syntax error: {e}")
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+
         self.m_sqlwhere = ""
         self.m_sql = ""
         self.m_sqlfields = ""
