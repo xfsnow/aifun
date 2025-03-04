@@ -9,9 +9,9 @@
         <h2>编辑交易信息</h2>
         {% if data.preview_image %}
         <img class="preview-img" src="{{ data.preview_image }}" alt="截图预览">
-        <form action="/save" method="post">
+        <form action="/save" method="post" id="saveForm">
         {% else %}
-        <form action="/edit" method="post">
+        <form action="/edit" method="post" id="saveForm">
         <input type="hidden" name="id" value="{{ data.id }}">
         {% endif %}
             <div class="form-group">

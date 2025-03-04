@@ -27,32 +27,11 @@ def index():
             # print(parsed_data)
             return render_template('edit.html', data=parsed_data)
     else:
-        # 调试用，直接解析图片
-        # filePath = os.path.join(current_app.config['UPLOAD_FOLDER'], 'receipt.jpg')
-        # print(filePath)
-        # with open(filePath, 'rb') as f:
-        #     image = f.read()
-        #     receipt = Receipt()
-        #     img = receipt.resize(image)
-        #     # 写出调试图片
-        #     with open('static/uploads/resized.jpg', 'wb') as f:
-        #         f.write(img)
-        #     parsed_data = receipt.recognize(img)
-#         strContent = """
-# {
-#                 "transaction_time": "2025-02-14 09:17:58",
-#                 "income_amount": None,
-#                 "expense_amount": 10.28,
-#                 "transaction_app": "美团App",
-#                 "payment_platform": "",
-#                 "financial_terminal": "浦发银行信用卡 (0673)",
-#                 "memo": "骑行套餐",
-#                 "category": "交通"
-#             }
-# """
-#         data= eval(strContent)
+        # 展示最近记录的条数，如果有请求参数 num，展示 num 条记录，默认为10条
+        num = request.args.get('num')
+        num = int(num) if num and num.isdigit() else 10
         receipt = Receipt()
-        res = receipt.listReceipts(10)
+        res = receipt.listReceipts(num)
         data = {'records': res}
         # print(res)
         return render_template('index.html', data=data)

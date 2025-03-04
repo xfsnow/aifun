@@ -73,11 +73,12 @@ h1, h3 {
  .edit-form { max-width: 400px; margin: 10px auto; }
  .form-group { margin-bottom: 10px; }
  label { display: block; margin-bottom: 5px; }
- input, textarea { width: 100%; padding: 8px; }
+ textarea { width: 100%; padding: 8px; }
+ input { padding: 8px; }
  .preview-img {
      max-width: 400px;
      display: block;    /* 使图片作为块级元素 */
      margin: 5px auto; /* 上下20、左右自动，即水平居中 */
  }
-
+#saveForm input { width: 100%; }
 /* 信息确认页 end */
