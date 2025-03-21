@@ -1,5 +1,7 @@
-import os
+import datetime
 import pymysql
+import os
+
 from pymysql.converters import escape_string
 
 class Table:
@@ -152,7 +154,26 @@ class Table:
         fields = list(data[0].keys())
         values = []
         for row in data:
-            value = [f"'{self.sql_escape(val)}'" if (val is not None and val != "") else 'NULL' for val in row.values()]
+            # 对于每一行数据，转换成 SQL 语句的格式
+            # 如果值为 None 或者空字符串，则转换成 NULL
+            # 如果值为日期，则转换成字符串格式
+            # 如果值为字符串，则转换成 SQL 语句的格式
+            # 如果值为数字，则直接使用
+            value = []
+            for key in fields:
+                val = row[key]
+                if val is None or val == '':
+                    value.append('NULL')
+                elif isinstance(val, str):
+                    value.append(f"'{self.sql_escape(val)}'")
+                elif isinstance(val, (int, float)):
+                    value.append(str(val))
+                elif isinstance(val, (datetime.date)):
+                    value.append("'"+ val.strftime('%Y-%m-%d')+"'")
+                elif isinstance(val, (datetime.datetime)):
+                    value.append("'"+ val.strftime('%Y-%m-%d %H:%M:%S')+"'")
+                else:
+                    value.append(f"'{self.sql_escape(str(val))}'")
             values.append(f"({', '.join(value)})")
         sql = f"INSERT INTO {self.m_table} ({', '.join(fields)}) VALUES {', '.join(values)}"
         if on_duplicate == self.INSERT_REPLACE:

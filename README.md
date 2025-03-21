@@ -271,7 +271,7 @@ az webapp config appsettings set -g <your-region> -n <your-app-name> --settings 
 使用命令行把代码部署上去
 ```bash
 zip -r deploy.zip .
-az webapp deploy -g <your-region> -n <your-app-name> --src-path deploy.zip --type zip
+az webapp deploy -g <resource-group> -n <app-name> --src-path deploy.zip --type zip
 ```
 4. 访问Web App URL
 
