@@ -1,4 +1,5 @@
 import datetime
+import logging
 import pymysql
 import os
 
@@ -18,7 +19,8 @@ class Table:
     ORDER_ASC = 'ASC'
     ORDER_DESC = 'DESC'
 
-    def __init__(self, table):
+    def __init__(self, table, debug=False):
+        self.debug = debug
         self.m_table = table
         self.m_sqljoin = ""
         self.m_sqlwhere = ""
@@ -114,9 +116,17 @@ class Table:
     def query(self, sql):
         self.m_sql = sql
         self.clear_error()
-        print(sql)
+        # print(sql)
+
         try:
+            if self.debug:
+                logging.debug(f"SQL: {sql}")
+                time_begin = datetime.datetime.now().timestamp()
             self.cursor.execute(sql)
+            if self.debug:
+                elapsed_time = (datetime.datetime.now().timestamp() - time_begin) * 1000
+                formatted_time = f"{elapsed_time:.4f} ms"
+                logging.debug(f"SQL run time: {formatted_time}")
         except pymysql.err.InterfaceError as e:
             print(f"SQL execution error: {e}")
         except pymysql.err.ProgrammingError as e:
@@ -134,7 +144,6 @@ class Table:
         if self.m_sqlfields:
             sql = f"SELECT {self.m_sqlfields} FROM {self.m_table}{self.m_sqljoin}{self.m_sqlwhere}{self.m_sqlorder}{self.m_sqllimit}"
             self.query(sql)
-
         result = self.cursor.fetchall()
         # fetchall() 返回的一个是元组的列表，转换为字典的列表
         field_names = [desc[0] for desc in self.cursor.description]
