@@ -73,11 +73,12 @@ class Table:
 
     def where(self, key, operator, value, conjunction='WHERE'):
         self.clear_error()
-        allowed_operators = ['is', 'is not', 'in', 'like', 'not in', '=', '>', '<', '<>', '!=', '>=', '<=']
+        # operator统一转换成大写
+        operator = operator.upper()
+        allowed_operators = ['=', '>', '<', '<>', '!=', '>=', '<=','IS', 'IS NOT', 'IN', 'LIKE', 'NOT IN', 'REGEXP']
         if operator not in allowed_operators:
             self.set_error(f"(SQL error: field[{key}]'s {operator} is not a valid operator.")
-            return False
-        if operator in ['in', 'not in']:
+        if operator in ['IN', 'NOT IN']:
             value = f"({', '.join([f'\'{self.sql_escape(v)}\'' for v in value])})"
             condition = f" ({key} {operator} {value}) "
         else:
@@ -120,13 +121,13 @@ class Table:
 
         try:
             if self.debug:
-                logging.debug(f"SQL: {sql}")
+                print(f"SQL: {sql}")
                 time_begin = datetime.datetime.now().timestamp()
             self.cursor.execute(sql)
             if self.debug:
                 elapsed_time = (datetime.datetime.now().timestamp() - time_begin) * 1000
                 formatted_time = f"{elapsed_time:.4f} ms"
-                logging.debug(f"SQL run time: {formatted_time}")
+                print(f"SQL run time: {formatted_time}")
         except pymysql.err.InterfaceError as e:
             print(f"SQL execution error: {e}")
         except pymysql.err.ProgrammingError as e:

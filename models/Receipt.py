@@ -5,7 +5,7 @@ import base64
 import json
 import openai
 import os
-
+from models.Model import Model
 from models.Table import Table
 
 # 在环境变量或配置中设置以下参数：
@@ -20,7 +20,7 @@ openai.api_type = "azure"
 openai.api_version = os.getenv("AZURE_API_VERSION", "2024-08-01-preview")
 openai.model = os.getenv("AZURE_MODEL_NAME", "gpt-4o")
 
-class Receipt:
+class Receipt(Model):
     # 按ID编辑1条记录
     def editReceipt(self, id: int, receipt: dict) -> bool:
         # 更新数据表
@@ -35,9 +35,11 @@ class Receipt:
         return res[0]
 
     # 按时间倒序读取多条记录
-    def listReceipts(self, limit: int = 10) -> list:
-        tableAccount = Table('accounting')
-        res = tableAccount.select('*').order_by('id', 'DESC').limit(limit).get()
+    def listReceipts(self, page: int = 1) -> list:
+        tableAccount = Table('accounting', debug=True)
+        # 每页条数为 Model.PAGE_EACH，转换为limit() 参数为 page * Model.PAGE_EACH
+        pe = Model.PAGE_EACH
+        res = tableAccount.select('*').order_by('transaction_time', 'DESC').limit((page - 1) * pe, pe).get()
         return res
 
     # 重置图片大小

@@ -15,9 +15,8 @@
         <button type="submit" id="submitButton" style="display: none;">
         <i class="fas fa-check"></i>  开始识别</button>
     </form>
-    <!-- 用表格显示最近 num 条记录 -->
     <form method="get" action="/?">
-<h3>最近 <input type="text" name="num" value="{{ data.records | length }}"> 条记录 <button type="submit">查询</button></h3>
+<h3>第 <input type="text" name="page" value="{{page}}"> 页 <button type="submit">跳转</button></h3>
     </form>
     <table class="data-table" border="1">
         <tr>

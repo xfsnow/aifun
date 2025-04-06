@@ -28,13 +28,13 @@ def index():
             return render_template('edit.html', data=parsed_data)
     else:
         # 展示最近记录的条数，如果有请求参数 num，展示 num 条记录，默认为10条
-        num = request.args.get('num')
-        num = int(num) if num and num.isdigit() else 10
+        page = request.args.get('page')
+        page = int(page) if page and page.isdigit() else 1
         receipt = Receipt()
-        res = receipt.listReceipts(num)
-        data = {'records': res}
+        res = receipt.listReceipts(page)
+        data = {'records': res, 'page': page}
         # print(res)
-        return render_template('index.html', data=data)
+        return render_template('index.html', data=data, page=page)
 
 @app.route('/edit', methods=['GET', 'POST'])
 def edit():
