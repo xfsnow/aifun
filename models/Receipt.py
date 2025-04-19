@@ -55,7 +55,7 @@ class Receipt(Model):
         new_height = int(max_width * image.height / image.width)
         resized_image = image.resize((max_width, new_height))
         with BytesIO() as output:
-            resized_image.save(output, format="JPEG")
+            resized_image.save(output, format="PNG")
             return output.getvalue()
 
     # 注意传图片体积太大时API会报错 {'error': {'code': '429', 'message': 'Rate limit is exceeded. Try again in 86400 seconds.'}}
