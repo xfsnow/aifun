@@ -1,26 +1,29 @@
 from io import BytesIO
 from PIL import Image
+from models.Model import Model
+from models.Table import Table
 
 import base64
 import json
 import openai
 import os
-from models.Model import Model
-from models.Table import Table
+import time
 
 # 在环境变量或配置中设置以下参数：
 #   AZURE_API_KEY        Azure OpenAI 的API密钥
 #   AZURE_API_ENDPOINT   Azure OpenAI 的API端点，比如 https://xxx.openai.azure.com/
-#   AZURE_API_VERSION    Azure OpenAI API版本号，比如 2024-08-01-preview
+#   AZURE_API_VERSION    Azure OpenAI API版本号，比如 2025-04-01-preview
 #   AZURE_MODEL_NAME     GPT-4o部署的模型名称
 
 openai.azure_endpoint = os.getenv("AZURE_API_ENDPOINT", "")
 openai.api_key = os.getenv("AZURE_API_KEY", "")
 openai.api_type = "azure"
-openai.api_version = os.getenv("AZURE_API_VERSION", "2024-08-01-preview")
-openai.model = os.getenv("AZURE_MODEL_NAME", "gpt-4o")
+openai.api_version = os.getenv("AZURE_API_VERSION", "2025-04-01-preview")
+# GPT‑4o‑mini 适用于图像和文本的多模态模型，深入推理稍弱，但处理速度更快，适合固定场景需要及时响应的应用。实测感觉 gpt-4.1 比 gpt-4o‑mini 速度还快。
+openai.model = os.getenv("AZURE_MODEL_NAME")
 
 class Receipt(Model):
+    IMAGE_FORMAT = 'png'
     # 按ID编辑1条记录
     def editReceipt(self, id: int, receipt: dict) -> bool:
         # 更新数据表
@@ -55,20 +58,18 @@ class Receipt(Model):
         new_height = int(max_width * image.height / image.width)
         resized_image = image.resize((max_width, new_height))
         with BytesIO() as output:
-            resized_image.save(output, format="PNG")
+            resized_image.save(output, format=self.IMAGE_FORMAT)
             return output.getvalue()
 
     # 注意传图片体积太大时API会报错 {'error': {'code': '429', 'message': 'Rate limit is exceeded. Try again in 86400 seconds.'}}
     # 虽说文档说文体体积最大512MB，实际200多KB的图片都会报错。换成小点的图片。
     # 识别图片内容
     def recognize(self, image_bytes: bytes) -> dict:
-        # 将图片转为base64供GPT-4o分析（如功能受限可使用OCR再传文本）
-        img_type = "image/jpeg"
+        img_type = "image/"+self.IMAGE_FORMAT
         b64_image = base64.b64encode(image_bytes).decode("utf-8")
 
-        # prompt = "这是交易截图的base64编码，请识别消费/收入信息，并返回 JSON 格式:" + b64_image + """
         prompt = """
-这是交易截图的base64编码，请识别消费/收入信息，识别出的文字内容应严格遵循图片上原有内容，不要转换来翻译成其它语言。请返回仅 JSON 格式的数据，不要输出任何其他内容。
+这是交易截图，请识别消费/收入信息，识别出的文字内容应严格遵循图片上原有内容，不要转换来翻译成其它语言。请返回仅 JSON 格式的数据，不要输出任何其他内容。
 提取字段:
 交易时间：如2025-02-15 12:30:00，使用时间格式表示
 收入金额：如99.99，使用数字表示，如果没有收入则为空
@@ -93,22 +94,17 @@ class Receipt(Model):
 如果无法识别，返回空。
 """
         jsonMessages = [
-                {
-                    "role": "system",
-                    "content": "你是一个善于提取结构化信息的助手。"
-                },
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {
-                            "type": "image_url",
-                            "image_url": {"url": f"data:{img_type};base64,{b64_image}"},
-                        },
-                    ],
-                }
-            ]
+        {"role": "system","content": "你是一个善于提取结构化信息的助手。"},
+        {"role": "user", "content": [
+            {"type": "text", "text": prompt},
+            {"type": "image_url", "image_url": {"url": f"data:{img_type};base64,{b64_image}"},},
+            ],
+        }
+        ]
+        time_start = time.time()
         completion = openai.chat.completions.create(model=openai.model, messages=jsonMessages)
+        time_end = time.time()
+        print(f"GPT model: {openai.model}, Time taken for completion: {time_end - time_start} seconds")
         jsonResponse = completion.to_json()
         parsed_response = json.loads(jsonResponse)
         #  message.content。如果存在 ["choices"][0]["message"]["content"] 则继续，否则返回失败提示信息
@@ -122,12 +118,12 @@ class Receipt(Model):
         print(strContent)
         jsonContent = eval(strContent)
         # 读取到的图片文件内容输出成可以显示在 HTML 中的图片格式
-        jsonContent['preview_image'] = 'data:image/jpeg;base64,' + b64_image
+        jsonContent['preview_image'] = 'data:image/'+self.IMAGE_FORMAT+';base64,' + b64_image
         return jsonContent
 
     # 保存识别结果
     def save(self, receipt: dict) -> bool:
         # 保存到数据库
-        tableAccount = Table('accounting')
+        tableAccount = Table('accounting', debug=True)
         res = tableAccount.add(receipt)
         return res
