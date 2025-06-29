@@ -41,191 +41,6 @@ CREATE TABLE IF NOT EXISTS `accounting` (
 );
 ```
 
-1. 服务端搭建（app.py）
-```python
-from flask import Flask, render_template, request, redirect, url_for
-import sqlite3
-import os
-from datetime import datetime
-
-
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'uploads'
-
-# Azure OpenAI GPT-4o配置
-
-
-
-
-def init_db():
-    conn = sqlite3.connect('finance.db')
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS transactions
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  platform VARCHAR(50),
-                  amount DECIMAL(10,2),
-                  time DATETIME,
-                  location TEXT,
-                  note TEXT)''')
-    conn.commit()
-    conn.close()
-
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    if request.method == 'POST':
-        # 处理图片上传
-        file = request.files['receipt']
-        if file:
-            filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}.jpg"
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(filepath)
-
-            # OCR识别
-            with open(filepath, 'rb') as f:
-                image = f.read()
-            result = ocr_client.basicGeneral(image)
-            text_data = '\n'.join([item['words'] for item in result['words_result']])
-
-            # 解析关键信息（示例解析逻辑）
-            parsed_data = {
-                'platform': '微信支付' if '微信支付' in text_data else '支付宝',
-                'amount': extract_amount(text_data),
-                'time': extract_time(text_data),
-                'location': extract_location(text_data),
-                'note': ''
-            }
-            return render_template('edit.html',
-                                 data=parsed_data,
-                                 image_url=filename)
-
-    return render_template('upload.html')
-
-@app.route('/save', methods=['POST'])
-def save_record():
-    record = {
-        'platform': request.form.get('platform'),
-        'amount': float(request.form.get('amount')),
-        'time': datetime.strptime(request.form.get('time'), '%Y-%m-%d %H:%M:%S'),
-        'location': request.form.get('location'),
-        'note': request.form.get('note')
-    }
-
-    conn = sqlite3.connect('finance.db')
-    c = conn.cursor()
-    c.execute('''INSERT INTO transactions
-                 (platform, amount, time, location, note)
-                 VALUES (?,?,?,?,?)''',
-              (record['platform'], record['amount'],
-               record['time'], record['location'], record['note']))
-    conn.commit()
-    conn.close()
-    return redirect(url_for('index'))
-
-if __name__ == '__main__':
-    init_db()
-    app.run(host='0.0.0.0', port=5000, debug=True)
-```
-
-2. 前端页面（templates/upload.html）
-
-```html
-<!DOCTYPE html>
-<html>
-<head>
-    <title>消费记录上传</title>
-    <style>
-        .container { max-width: 600px; margin: 20px auto; padding: 20px; }
-        .upload-box { border: 2px dashed #ccc; padding: 30px; text-align: center; }
-        #preview { max-width: 100%; margin-top: 20px; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>上传消费凭证</h1>
-        <form method="post" enctype="multipart/form-data">
-            <div class="upload-box">
-                <input type="file" name="receipt" accept="image/*"
-                       onchange="previewImage(this)">
-                <img id="preview" src="#" alt="图片预览">
-            </div>
-            <button type="submit">开始识别</button>
-        </form>
-    </div>
-
-    <script>
-        function previewImage(input) {
-            const preview = document.getElementById('preview');
-            const file = input.files[0];
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-                preview.src = e.target.result;
-            }
-
-            if (file) {
-                reader.readAsDataURL(file);
-            }
-        }
-    </script>
-</body>
-</html>
-
-```
-
-3. 编辑页面（templates/edit.html）
-```html
-<!DOCTYPE html>
-<html>
-<head>
-    <title>确认消费信息</title>
-    <style>
-        .edit-form { max-width: 600px; margin: 20px auto; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; }
-        input, textarea { width: 100%; padding: 8px; }
-        .preview-img { max-width: 300px; margin-bottom: 20px; }
-    </style>
-</head>
-<body>
-    <div class="edit-form">
-        <h2>请核对消费信息</h2>
-        <img class="preview-img" src="{{ url_for('static', filename='uploads/'+image_url) }}">
-
-        <form action="/save" method="post">
-            <div class="form-group">
-                <label>支付平台：</label>
-                <input type="text" name="platform" value="{{ data.platform }}">
-            </div>
-
-            <div class="form-group">
-                <label>金额（元）：</label>
-                <input type="number" step="0.01" name="amount" value="{{ data.amount }}">
-            </div>
-
-            <div class="form-group">
-                <label>交易时间：</label>
-                <input type="datetime-local" name="time"
-                       value="{{ data.time.strftime('%Y-%m-%dT%H:%M:%S') }}">
-            </div>
-
-            <div class="form-group">
-                <label>消费地点：</label>
-                <input type="text" name="location" value="{{ data.location }}">
-            </div>
-
-            <div class="form-group">
-                <label>备注：</label>
-                <textarea name="note" rows="3">{{ data.note }}</textarea>
-            </div>
-
-            <button type="submit">保存记录</button>
-        </form>
-    </div>
-</body>
-</html>
-
-```
-
 ## 部署说明
 1. 安装依赖：
 ```bash
@@ -280,8 +95,92 @@ az webapp deploy -g <resource-group> -n <app-name> --src-path deploy.zip --type 
 推测是 Python 连接 Azure Database for MySQL 的奇怪问题。
 实测确实是 Azure Database for MySQL 的问题，require_secure_transport 选项导致的。Python 连接数据库时加上 Azure 给的证书即可。注意官方文档建议的 2 个证书，目前只有 [DigiCertGlobalRootCA.crt.pem](https://learn.microsoft.com/en-us/azure/mysql/flexible-server/how-to-connect-tls-ssl#download-the-public-ssl-certificate) 可以正常用于 Azure 北3区的 MySQL 服务。
 
+# 无容器直接部署在Ubuntu虚拟机上
+ECS 的安全组开放入站 5000 端口
 
+https://zhuanlan.zhihu.com/p/22320388002
+Ubuntu 24 默认安装了 Python 3.12和 pip 。
+阿里云 ECS 访问 github 不行，修改 hosts 本地解析
+```sh
+echo "140.82.112.3 github.com" >> /etc/hosts
+```
 
+设置 Python 应用运行依赖的环境变量
+```sh
+# 为手动执行 Flask 应用设置环境变量
+sudo vi /etc/environment
+# 在文件末尾添加以下内容
+FLASK_ENV=development # 开发环境，或者阿里云环境需要，所有不开启SSL连接MySQL的都要设置
+AZURE_API_ENDPOINT="https://<your-endpoint>.cognitiveservices.azure.com/"
+AZURE_API_KEY="<your-api-key>"
+AZURE_MODEL_NAME="gpt-4o"
+MYSQL_HOST="<your-mysql-host>"
+MYSQL_USER="<your-mysql-user>"
+MYSQL_PASSWORD="<your-mysql-password>"
+MYSQL_DATABASE="<your-mysql-database>"
+```
+
+安装 Python 3.12 的 venv 模块
+```sh
+apt install python3.12-venv
+mkdir /var/local/aifun
+cd /var/local/aifun
+python3.12 -m venv venv
+# 安装完成后激活虚拟环境，如果系统重启或者手动启动 Flask 应用，从这步开始
+source venv/bin/activate
+pip install --upgrade pip
+# 安装 Gunicorn 作为 WSGI 服务器
+pip install gunicorn
+git clone https://github.com/xfsnow/aifun.git
+cd aifun
+pip install -r requirements.txt
+# 手动测试运行
+gunicorn app:app -b 0.0.0.0:5000
+```
+找到 ECS 外网 IP 地址，手机浏览器访问 `http://<your-ecs-ip>:5000`，如果能看到上传页面，则说明 Flask 应用运行正常。
+
+## 设置为系统服务，所有环境变量在这里再设置一遍，以便让 Flask 应用在系统服务中运行时也能获取到这些环境变量
+```sh
+sudo vi /etc/systemd/system/aifun.service
+# 添加以下
+[Unit]
+Description=Aifun Service
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+Environment="AZURE_API_ENDPOINT=https://<your-endpoint>.cognitiveservices.azure.com/"
+Environment="AZURE_API_KEY=<your-api-key>"
+Environment="AZURE_MODEL_NAME=<your-api-model>"
+Environment="MYSQL_HOST=<rds-internal-endpoint>"
+Environment="MYSQL_USER=<mysql-username>"
+Environment="MYSQL_PASSWORD=<mysql-password>"
+Environment="MYSQL_DATABASE=<mysql-database>"
+Environment="FLASK_ENV=development"
+WorkingDirectory=/var/local/aifun/aifun
+# 使用 Gunicorn 启动 Flask 应用。-w 1 表示工作进程为1，只有自己用，不用开太多进程。
+ExecStart=/var/local/aifun/venv/bin/gunicorn -w 1 -b 0.0.0.0:5000 app:app
+
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+# 保存退出
+
+sudo systemctl enable aifun.service
+sudo systemctl start aifun.service
+sudo systemctl stop aifun.service
+# 查看服务状态
+sudo systemctl status aifun.service
+
+# 修改服务配置后，需要重新加载服务配置
+sudo systemctl daemon-reload
+sudo systemctl restart aifun.service
+# 查看日志
+sudo journalctl -u aifun.service -f
+
+```
 TODO
 - [X] 列表展示已保存的收支记录。
 - [X] 编辑已有记录。
