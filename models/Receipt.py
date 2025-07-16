@@ -25,7 +25,7 @@ openai.model = os.getenv("AZURE_MODEL_NAME")
 class Receipt(Model):
     IMAGE_FORMAT = 'png'
     # 按ID编辑1条记录
-    def editReceipt(self, id: int, receipt: dict) -> bool:
+    def editReceipt(self, id: int, receipt: dict) -> int:
         # 更新数据表
         tableAccount = Table('accounting')
         res = tableAccount.where('id', '=', id).update(receipt)
@@ -122,7 +122,7 @@ class Receipt(Model):
         return jsonContent
 
     # 保存识别结果
-    def save(self, receipt: dict) -> bool:
+    def save(self, receipt: dict) -> int:
         # 保存到数据库
         tableAccount = Table('accounting', debug=True)
         res = tableAccount.add(receipt)

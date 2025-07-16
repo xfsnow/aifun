@@ -3,8 +3,6 @@
 服务端程序收到截图后智能识别出支出的地所、支付平台、费用、时间，最后统一保存起来。
 不用微信小程序，直接用Python做一个简单的HTML页面，用于图片上传，整合到Python的服务端程序中，用浏览器打开，首次打开是一个供上传图片的HTML页，图片上传后显示解析出的收支内容，每栏都可以修改，确认无误后，点击确认，最后再保存到数据库中。
 
-
-
 # 移动端消费记录系统开发方案
 
 ## 系统架构
@@ -159,8 +157,8 @@ Environment="MYSQL_PASSWORD=<mysql-password>"
 Environment="MYSQL_DATABASE=<mysql-database>"
 Environment="FLASK_ENV=development"
 WorkingDirectory=/var/local/aifun/aifun
-# 使用 Gunicorn 启动 Flask 应用。-w 1 表示工作进程为1，只有自己用，不用开太多进程。
-ExecStart=/var/local/aifun/venv/bin/gunicorn -w 1 -b 0.0.0.0:5000 app:app
+# 使用 Gunicorn 启动 Flask 应用。这里 -w 2 表示使用几个工作进程，-k gthread 表示使用线程池工作模式，--threads 2 表示每个工作进程使用2个线程。
+ExecStart=/var/local/aifun/venv/bin/gunicorn -w 2 -k gthread --threads 2 -b 0.0.0.0:5000 app:app
 
 Restart=always
 
@@ -181,6 +179,51 @@ sudo systemctl restart aifun.service
 sudo journalctl -u aifun.service -f
 
 ```
+
+前面加个 nginx 内部转发到 Python 服务的 5000 端口，对外统一用 SSL 的 433 端口了。
+
+```nginx
+
+# aifun.domain.my  的 HTTP 跳转 HTTPS
+server {
+    if ($host = aifun.domain.my) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    listen 80;
+    server_name aifun.domain.my;
+    return 301 https://$host$request_uri;
+}
+
+# aifun.domain.my  的 HTTPS 代理配置
+server {
+    listen 443 ssl;
+    server_name aifun.domain.my;
+
+    # 复用与 www 相同的 SSL 证书
+    ssl_certificate /etc/letsencrypt/live/www.domain.my/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/www.domain.my/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:5000;  # 注意这里是 HTTP 协议（本地转发）
+
+        # 必要代理头设置
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # 长连接和缓冲优化（可选）
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_buffering off;
+    }
+}
+```
+
+
 TODO
 - [X] 列表展示已保存的收支记录。
 - [X] 编辑已有记录。
