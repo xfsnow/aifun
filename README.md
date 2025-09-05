@@ -182,46 +182,9 @@ sudo journalctl -u aifun.service -f
 
 前面加个 nginx 内部转发到 Python 服务的 5000 端口，对外统一用 SSL 的 433 端口了。
 
-```nginx
+nginx 配置文件保存到文件中，这样 nginx 程序配置可以软链接到相应的文件， nginx 配置文件也可以通过源码进行版本管理了。
 
-# aifun.domain.my  的 HTTP 跳转 HTTPS
-server {
-    if ($host = aifun.domain.my) {
-        return 301 https://$host$request_uri;
-    } # managed by Certbot
-
-    listen 80;
-    server_name aifun.domain.my;
-    return 301 https://$host$request_uri;
-}
-
-# aifun.domain.my  的 HTTPS 代理配置
-server {
-    listen 443 ssl;
-    server_name aifun.domain.my;
-
-    # 复用与 www 相同的 SSL 证书
-    ssl_certificate /etc/letsencrypt/live/www.domain.my/fullchain.pem; # managed by Certbot
-    ssl_certificate_key /etc/letsencrypt/live/www.domain.my/privkey.pem; # managed by Certbot
-    include /etc/letsencrypt/options-ssl-nginx.conf;
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
-
-    location / {
-        proxy_pass http://127.0.0.1:5000;  # 注意这里是 HTTP 协议（本地转发）
-
-        # 必要代理头设置
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-
-        # 长连接和缓冲优化（可选）
-        proxy_http_version 1.1;
-        proxy_set_header Connection "";
-        proxy_buffering off;
-    }
-}
-```
+[nginx 配置文件](aifun.nginx.conf)
 
 
 TODO
