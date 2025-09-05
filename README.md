@@ -120,17 +120,14 @@ MYSQL_DATABASE="<your-mysql-database>"
 
 安装 Python 3.12 的 venv 模块
 ```sh
+cd /var/local/
+git clone https://github.com/xfsnow/aifun.git
+cd aifun
 apt install python3.12-venv
-mkdir /var/local/aifun
-cd /var/local/aifun
 python3.12 -m venv venv
 # 安装完成后激活虚拟环境，如果系统重启或者手动启动 Flask 应用，从这步开始
 source venv/bin/activate
 pip install --upgrade pip
-# 安装 Gunicorn 作为 WSGI 服务器
-pip install gunicorn
-git clone https://github.com/xfsnow/aifun.git
-cd aifun
 pip install -r requirements.txt
 # 手动测试运行
 gunicorn app:app -b 0.0.0.0:5000
@@ -156,7 +153,7 @@ Environment="MYSQL_USER=<mysql-username>"
 Environment="MYSQL_PASSWORD=<mysql-password>"
 Environment="MYSQL_DATABASE=<mysql-database>"
 Environment="FLASK_ENV=development"
-WorkingDirectory=/var/local/aifun/aifun
+WorkingDirectory=/var/local/aifun
 # 使用 Gunicorn 启动 Flask 应用。这里 -w 2 表示使用几个工作进程，-k gthread 表示使用线程池工作模式，--threads 2 表示每个工作进程使用2个线程。
 ExecStart=/var/local/aifun/venv/bin/gunicorn -w 2 -k gthread --threads 2 -b 0.0.0.0:5000 app:app
 
