@@ -103,7 +103,7 @@ class LlmQwen:
                 json=payload,
                 timeout=30
         )
-        response.raise_for_status()  # 抛出HTTP错误
+        # response.raise_for_status()  # 抛出HTTP错误
         result = response.json()
         answer = self.extract_answer(result)
         return answer
