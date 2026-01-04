@@ -58,7 +58,8 @@ mkdir -p uploads
 
 4. 启动服务：
 ```bash
-cd accounting
+# 激活 Python 虚拟环境
+# .venv/Scripts/activate 
 python app.py
 ```
 在手机浏览器打开 `http://<服务器IP>:5000`
