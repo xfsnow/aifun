@@ -6,7 +6,6 @@ body {
     box-sizing: border-box;
 }
 
-
 h1, h3 {
     text-align: center;
 }
@@ -38,6 +37,48 @@ h1, h3 {
     border: none;
     border-radius: 5px;
 }
+
+/* 自定义图标样式 */
+.icon-upload,
+.icon-check {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    position: relative;
+}
+
+.icon-upload::before {
+    content: "◪";
+    font-size: 22px;
+    position: relative;
+    top: -6px;
+}
+
+
+.icon-check::before,
+.icon-check::after {
+    content: '';
+    position: absolute;
+    background-color: currentColor;
+}
+
+.icon-check::before {
+    width: 16px;
+    height: 2px;
+    transform: rotate(-45deg);
+    left: 0px;
+    top: 6px;
+}
+
+.icon-check::after {
+    width: 10px;
+    height: 2px;
+    transform: rotate(45deg);
+    left: -6px;
+    top: 7px;
+}
+
 
 .data-table {
     width: 100%;

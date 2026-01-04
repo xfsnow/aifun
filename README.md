@@ -26,17 +26,19 @@
 
 ### 服务端搭建
 ```mysql
-CREATE TABLE IF NOT EXISTS `accounting` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `transaction_time` DATETIME NOT NULL,
-  `income_amount` DECIMAL(10,2),
-  `expense_amount` DECIMAL(10,2),
-  `transaction_app` VARCHAR(50),
-  `payment_platform` VARCHAR(50),
-  `financial_terminal` VARCHAR(50),
-  `memo` TEXT,
-  `category` VARCHAR(50)
-);
+CREATE TABLE `accounting` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `transaction_time` datetime NOT NULL,
+  `income_amount` decimal(10,2) DEFAULT NULL,
+  `expense_amount` decimal(10,2) DEFAULT NULL,
+  `transaction_app` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `payment_platform` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `financial_terminal` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `memo` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+  `category` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `time_amount` (`transaction_time`,`income_amount`,`expense_amount`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin
 ```
 
 ## 部署说明

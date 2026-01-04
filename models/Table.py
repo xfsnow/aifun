@@ -1,5 +1,4 @@
 import datetime
-import logging
 import pymysql
 import os
 
@@ -28,13 +27,14 @@ class Table:
         self.m_sqlgroup = ""
         self.m_sqllimit = ""
 
-        mysqlHost = os.environ.get("MYSQL_HOST")
-        mysqlUser = os.environ.get("MYSQL_USER")
-        mysqlPassword = os.environ.get("MYSQL_PASSWORD")
-        mysqlDatabase = os.environ.get("MYSQL_DATABASE")
+        mysqlHost = os.environ.get("MYSQL_HOST") or 'localhost'
+        mysqlUser = os.environ.get("MYSQL_USER") or 'root'
+        mysqlPassword = os.environ.get("MYSQL_PASSWORD") or ''
+        mysqlDatabase = os.environ.get("MYSQL_DATABASE") or 'test'
         env = os.environ.get("FLASK_ENV")
-
+        
         jsonSsl = {'ca': 'models/DigiCertGlobalRootCA.crt.pem'} if env != 'development' else None
+        print(f"Connecting to MySQL database at {mysqlHost} as user {mysqlUser} in {env} environment.")
         connection = pymysql.connect(
                 host=mysqlHost,
                 user=mysqlUser,
@@ -99,7 +99,12 @@ class Table:
             self.m_sqlorder += f"{fields[0]} ASC"
         elif len(fields) > 1:
             for i in range(0, len(fields), 2):
-                self.m_sqlorder += f"{fields[i]} {fields[i+1]},"
+                # 检查是否还有下一个元素（即排序方向）
+                if i+1 < len(fields):
+                    self.m_sqlorder += f"{fields[i]} {fields[i+1]},"
+                else:
+                    # 如果只剩一个元素，使用默认的ASC排序
+                    self.m_sqlorder += f"{fields[i]} ASC,"
             self.m_sqlorder = self.m_sqlorder.rstrip(',')
         return self
 
@@ -144,16 +149,21 @@ class Table:
         self.clear_error()
         if self.m_sqlfields:
             sql = f"SELECT {self.m_sqlfields} FROM {self.m_table}{self.m_sqljoin}{self.m_sqlwhere}{self.m_sqlorder}{self.m_sqllimit}"
-            self.query(sql)
-        result = self.cursor.fetchall()
-        # fetchall() 返回的一个是元组的列表，转换为字典的列表
-        field_names = [desc[0] for desc in self.cursor.description]
-        result = [dict(zip(field_names, row)) for row in result]
-        # 数据库表中某字段值为空时，to_dict()会将其转换为None，把它改成空字符串
-        for record in result:
-            for key, value in record.items():
-                if value is None:
-                    record[key] = ''
+            # 执行查询
+            self.cursor.execute(sql)
+            result = self.cursor.fetchall()
+            # fetchall() 返回的一个是元组的列表，转换为字典的列表
+            field_names = [desc[0] for desc in self.cursor.description]
+            result = [dict(zip(field_names, row)) for row in result]
+            # 数据库表中某字段值为空时，to_dict()会将其转换为None，把它改成空字符串
+            for record in result:
+                for key, value in record.items():
+                    if value is None:
+                        record[key] = ''
+        else:
+            result = []
+            
+        # 清除查询条件
         self.m_sqlwhere = ""
         self.m_sql = ""
         self.m_sqlfields = ""
