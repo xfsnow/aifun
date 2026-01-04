@@ -156,6 +156,7 @@ Environment="MYSQL_HOST=<rds-internal-endpoint>"
 Environment="MYSQL_USER=<mysql-username>"
 Environment="MYSQL_PASSWORD=<mysql-password>"
 Environment="MYSQL_DATABASE=<mysql-database>"
+Environment="QWEN_KEY=<your-qwen-key>"
 Environment="FLASK_ENV=development"
 WorkingDirectory=/var/local/aifun
 # 使用 Gunicorn 启动 Flask 应用。这里 -w 2 表示使用几个工作进程，-k gthread 表示使用线程池工作模式，--threads 2 表示每个工作进程使用2个线程。

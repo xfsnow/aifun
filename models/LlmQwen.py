@@ -15,6 +15,9 @@ class LlmQwen:
         :param api_key: 阿里云DashScope API密钥（从控制台获取）
         """
         self.api_key = os.getenv('QWEN_KEY')
+        if not self.api_key:
+            raise ValueError("环境变量 QWEN_KEY 未设置，请在环境中配置API密钥")
+        
         self.base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
         self.headers = {
             "Authorization": f"Bearer {self.api_key}",
@@ -76,11 +79,6 @@ class LlmQwen:
                     "url": f"data:image/{image_type};base64,{image_base64}"
                 }
             })
-            # content = [
-            #     {"type": "text", "text": question},
-            #     {"type": "image_url","image_url": {"url": f"data:image/{image_type};base64,{image_base64}"}}
-            # ]
-
         
         # 构建请求体
         payload = {
@@ -103,7 +101,7 @@ class LlmQwen:
                 json=payload,
                 timeout=30
         )
-        # response.raise_for_status()  # 抛出HTTP错误
+        response.raise_for_status()  # 抛出HTTP错误
         result = response.json()
         answer = self.extract_answer(result)
         return answer
