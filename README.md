@@ -119,6 +119,7 @@ MYSQL_HOST="<your-mysql-host>"
 MYSQL_USER="<your-mysql-user>"
 MYSQL_PASSWORD="<your-mysql-password>"
 MYSQL_DATABASE="<your-mysql-database>"
+QWEN_KEY="<your-qwen-key>"
 ```
 
 安装 Python 3.12 的 venv 模块
@@ -191,5 +192,6 @@ TODO
 - [X] 列表展示已保存的收支记录。
 - [X] 编辑已有记录。
 - [X] 把数据表操作封装到单独的类中，以简化表操作的代码。
+- [ ] AI 模型换成了阿里千问。但是部署到 ECS 上之后，现在调用 API 报验证失败。requests.exceptions.HTTPError: 401 Client Error: Unauthorized for url: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
 - [ ] 样式调整成适配手机端的灵活样式，现在手机打开字体太小。
 - [ ] 改进前端交互成为 SPA，主要是更友好的等待和进度显示。
